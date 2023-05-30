@@ -86,7 +86,7 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
 
         # Add context to the prompt for better domain-specific responses
         # context_text = "We are the Quantum Computing Research Group in The Centre for Quantum Technologies (CQT) in Singapore. Quantum computing is a field of study focused on the development of computer technologies based on the principles of quantum theory. It involves the use of quantum bits or qubits, which can exist in multiple states simultaneously, allowing for more efficient and powerful computation."
-        prompt = f"{self.context_text}\n\nQuestion: {question}\nAnswer:"
+        prompt = '{}\n\nQuestion: {}\nAnswer:'.format(self.context_text, question)
 
         # Send the user's question to the text-davinci-002 model using the OpenAI API
         model = "text-davinci-003"
