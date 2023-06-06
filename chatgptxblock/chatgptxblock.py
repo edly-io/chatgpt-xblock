@@ -3,7 +3,7 @@ import requests
 import pkg_resources
 import openai
 from xblock.core import XBlock
-from xblock.fields import Integer, String, Scope
+from xblock.fields import Float, Integer, String, Scope
 from xblock.fragment import Fragment
 from xblockutils.studio_editable import StudioEditableXBlockMixin
 
@@ -48,6 +48,26 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
         help='Description'
     )
 
+    max_tokens = Integer(
+        display_name="Max tokens",
+        default=150,
+        scope=Scope.settings,
+        help="The maximum number of tokens to generate.",
+    )
+
+    start_text = String(
+        display_name="Start Text",
+        default="",
+        scope=Scope.settings,
+        help="Text to append after the user's input."
+    )
+
+    temperature = Float(
+        default=0.5,
+        scope=Scope.settings,
+        help="Controls Randomness."
+    )
+
     # TO-DO: Add any additional fields.
 
     editable_fields = [
@@ -56,6 +76,9 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
         'api_key',
         'description',
         'context_text',
+        'max_tokens',
+        'start_text',
+        'temperature',
     ]
 
     def resource_string(self, path):
@@ -88,24 +111,22 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
         # context_text = "We are the Quantum Computing Research Group in The Centre for Quantum Technologies (CQT) in Singapore. Quantum computing is a field of study focused on the development of computer technologies based on the principles of quantum theory. It involves the use of quantum bits or qubits, which can exist in multiple states simultaneously, allowing for more efficient and powerful computation."
         prompt = '{}\n\nQuestion: {}\nAnswer:'.format(self.context_text, question)
 
-        # Send the user's question to the text-davinci-002 model using the OpenAI API
-        model = "text-davinci-003"
         openai.api_key = self.api_key
         response = openai.Completion.create(
-            engine=model,
+            engine=self.model_name,
             prompt=prompt,
-            max_tokens=150,
+            max_tokens=self.max_tokens,
             n=1,
             stop=["\n"],
-            temperature=0.5,
+            temperature=self.temperature,
         )
 
         # Extract the response from the OpenAI API and store it
         answer = response.choices[0].text.strip()
-        self.answer = answer
+        self.answer = "{} {}".format(self.start_text, answer)
 
         # Return the response to the JavaScript function in the HTML file
-        return {'answer': answer}
+        return {'answer': self.answer}
 
 
     # TO-DO: change this to create the scenarios you'd like to see in the
