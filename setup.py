@@ -34,7 +34,7 @@ setup(
     ],
     install_requires=[
         'XBlock',
-        'openai'
+        'openai==1.65.1'
     ],
     entry_points={
         'xblock.v1': [
